@@ -3,6 +3,8 @@ package th.ac.ku.bankaccount.controller;
 import org.springframework.web.bind.annotation.*;
 import th.ac.ku.bankaccount.data.BankAccountRepository;
 import th.ac.ku.bankaccount.model.BankAccount;
+import th.ac.ku.bankaccount.model.Transaction;
+import th.ac.ku.bankaccount.model.TransactionType;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,10 +44,16 @@ public class BankAccountRestController {
         return bankAccount;
     }
 
-    @PutMapping("/{id}")
-    public BankAccount update(@PathVariable int id, @RequestBody BankAccount bankAccount) {
+    @PutMapping("transaction/{id}")
+    public BankAccount makeTransaction(@PathVariable int id, @RequestBody Transaction transaction) {
         BankAccount record = repository.findById(id).get();
-        record.setBalance(bankAccount.getBalance());
+
+        if (transaction.getType() == TransactionType.DEPOSIT) {
+            record.deposit(transaction.getAmount());
+        } else if (transaction.getType() == TransactionType.WITHDRAW) {
+            record.withdraw(transaction.getAmount());
+        }
+
         repository.save(record);
         return record;
     }
@@ -56,5 +64,4 @@ public class BankAccountRestController {
         repository.deleteById(id);
         return record;
     }
-
 }
